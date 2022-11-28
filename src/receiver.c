@@ -1,6 +1,6 @@
 /*=============================================================================
 #     FileName: receiver.c
-#         Desc: 
+#         Desc: Simulate the receiver 
 #       Author: Humoooor
 #        Email: humoooor@qq.com
 #     HomePage: https://humoooor.cn
@@ -23,7 +23,6 @@
 
 #define PORT 7777
 #define RSIZE 8
-#define distance(a, b) (a<b?b-a:a-b)
 
 void DeliverData(uint8_t seqNo, char *data);
 
@@ -63,7 +62,11 @@ int main(int argc, char *argv[]) {
 		if(ret == -1) {
             myErrLog("Wrong frame format");
 			break;
-		}
+        } else if(ret == 0) {
+            myLog("Receive complished");
+            break;
+        }
+
 		myLog("Receive frame %u", frame->seqNo);
 
         // check if frame is corrupted
@@ -93,13 +96,15 @@ int main(int argc, char *argv[]) {
         // deliver data in sequence
 		while(isFrameExist(Rn)) {
 			data = ExtractData(Rn);
+            myLog("Deliver frame %u", Rn);
 			DeliverData(Rn, data);
+
 			PurgeFrame(Rn);
 			myLog("Purge frame %u", Rn);
 
 			Rn++;
 			Rn %= RSIZE;
-            ACKNeeded = true;
+            ACKNeeded = false;
 		}
 
         if(ACKNeeded) {
@@ -108,7 +113,7 @@ int main(int argc, char *argv[]) {
             NAKSent = false;
         }
 
-		sleep(0.5);
+		//sleep(0.5);
 	}
 
     free(frame);
@@ -121,7 +126,7 @@ int main(int argc, char *argv[]) {
 }
 
 void DeliverData(uint8_t seqNo, char *data) {
-    printf("-------- Frame %u --------", seqNo);
+    printf("-------- Frame %u ---------\n", seqNo);
     puts(data);
     puts("--------------------------");
 }

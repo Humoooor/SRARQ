@@ -18,24 +18,29 @@
 #include "check.h"
 
 #define ESC 0x1b
+#define SendField(socket, x) write(socket, &(x), sizeof(x))
 
 // server
 
 int ReceiveFrame(int client_socket, struct Frame *frame) {
+    int ret;
     char buf;
-    char data[MAXDATA];
+    char raw_data[MAXDATA];
 
-    read(client_socket, &buf, 1);
-    if(buf != FLAG) {
+    ret = read(client_socket, &buf, 1);
+    if(ret != 0 && buf != FLAG) {
         return -1;
+    } else if(ret == 0) {
+        // socket closed
+        return 0;
     }
 
     int len = 0;
     int esc = 0;
 
-    memset(data, 0, MAXDATA);
+    memset(raw_data, 0, MAXDATA);
     read(client_socket, &frame->seqNo, 1);
-    while(read(client_socket, &buf, 1)) {
+    while(ret = read(client_socket, &buf, 1)) {
         if(len >= MAXDATA) {
             myWarnLog("Frame data is too long, the rest has been discarded");
 
@@ -56,7 +61,7 @@ int ReceiveFrame(int client_socket, struct Frame *frame) {
             break;
         }
         if(esc) {
-            data[len] = buf;
+            raw_data[len] = buf;
             len++;
             esc--;
             continue;
@@ -68,18 +73,19 @@ int ReceiveFrame(int client_socket, struct Frame *frame) {
         if(buf == FLAG) {
             break;
         }
-        data[len] = buf;
+        raw_data[len] = buf;
         len++;
     }
 
-    // raw data contains CRC code
+    // raw_data contains CRC code
     frame->data = (char*)malloc(len - 1);
+    memset(frame->data, 0, len - 1);
     for(int i = 0; i < len - 2; i++) {
-        frame->data[i] = data[i];
+        frame->data[i] = raw_data[i];
     }
-    frame->CRC = *(uint16_t*)(data + len - 2);
+    frame->CRC = *(uint16_t*)(raw_data + len - 2);
 
-	return 0;
+	return ret;
 }
 
 int CheckFrame(struct Frame *frame) {
@@ -116,7 +122,7 @@ struct Frame *MakeFrame(int seqNo, char *data) {
     int escape_num = 0;
 
     for(int i = 0; i < strlen(data); ++i) {
-        if(data[i] == FLAG) {
+        if(data[i] == FLAG || data[i] == ESC) {
             escape_num++;
         }
     }
@@ -138,4 +144,12 @@ struct Frame *MakeFrame(int seqNo, char *data) {
     frame->flag2 = FLAG;
 
 	return frame;
+}
+
+void SendFrame(int client_socket, struct Frame *frame) {
+    SendField(client_socket, frame->flag1);
+    SendField(client_socket, frame->seqNo);
+    write(client_socket, frame->data, strlen(frame->data));
+    SendField(client_socket, frame->CRC);
+    SendField(client_socket, frame->flag2);
 }

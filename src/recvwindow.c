@@ -20,8 +20,8 @@ static uint8_t window_size;
 void initWindow(uint8_t Rsize) {
     seq_max = Rsize - 1;
     window_size = Rsize / 2;
-    datas = (char**)malloc(sizeof(char*) * window_size);
-    memset(datas, 0, sizeof(char*) * window_size);
+    datas = (char**)malloc(sizeof(char*) * Rsize);
+    memset(datas, 0, sizeof(char*) * Rsize);
 }
 
 int isFrameExist(uint8_t seqNo) {
