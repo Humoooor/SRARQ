@@ -16,9 +16,13 @@ Simulate the process of SRARQ
         - [x] StoreFrame
         - [x] PurgeFrame
         - [x] ExtractData
+    - [ ] Debug
+        - [x] First
+        - [ ] ...
 - [ ] Sender
     - [ ] Frame
         - [x] MakeFrame
+        - [x] SendFrame
         - [ ] ReceiveACK/NAK
         - [ ] ...
     - [ ] SenderWindow
