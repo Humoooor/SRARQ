@@ -1,4 +1,2 @@
 *.swp
-src/*.o
-receiver
-sender
+build

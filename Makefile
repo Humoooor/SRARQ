@@ -2,38 +2,43 @@ CC = gcc
 root = $(CURDIR)
 SRC_DIR = $(root)/src
 INCL_DIR = $(root)/include
+BUILD_DIR = $(root)/build
 CFLAGS = -I$(INCL_DIR)
 
-HDRS = $(INCL_DIR)/check.h \
-	   $(INCL_DIR)/frame.h \
-	   $(INCL_DIR)/mylog.h \
-	   $(INCL_DIR)/mysocket.h \
-	   $(INCL_DIR)/types.h \
+vpath %.c $(SRC_DIR)
+vpath %.h $(INCL_DIR)
+vpath %.o $(BUILD_DIR)
 
-SRCS = $(SRC_DIR)/check.c \
-	   $(SRC_DIR)/frame.c \
-	   $(SRC_DIR)/mylog.c \
-	   $(SRC_DIR)/mysocket.c \
+HDRS = check.h \
+	   frame.h \
+	   mylog.h \
+	   mysocket.h \
+	   types.h \
 
-RECV_HDR = $(HDRS) $(INCL_DIR)/recvwindow.h
-RECV_SRC = $(SRCS) $(SRC_DIR)/recvwindow.c $(SRC_DIR)/receiver.c
-RECV_OBJ = $(RECV_SRC:.c=.o)
-SEND_HDR = $(HDRS) $(INCL_DIR)/sendwindow.h
-SEND_SRC = $(SRCS) $(SRC_DIR)/sendwindow $(SRC_DIR)/sender.c
-SEND_OBJ = $(SEND_SRC:.c=.o)
+SRCS = check.c \
+	   frame.c \
+	   mylog.c \
+	   mysocket.c \
+
+RECV_HDR = $(HDRS) recvwindow.h
+RECV_SRC = $(SRCS) recvwindow.c receiver.c
+RECV_OBJ = $(foreach c, $(RECV_SRC:.c=.o), $(BUILD_DIR)/$(c))
+SEND_HDR = $(HDRS) sendwindow.h
+SEND_SRC = $(SRCS) sendwindow.c sender.c
+SEND_OBJ = $(foreach c, $(SEND_SRC:.c=.o), $(BUILD_DIR)/$(c))
 
 all: receiver sender
 
 receiver: $(RECV_OBJ)
-	$(CC) $(CFLAGS) -o $(root)/receiver $(RECV_OBJ)
+	$(CC) $(CFLAGS) -o $(BUILD_DIR)/$@ $^
 
 sender: $(SEND_OBJ)
-	$(CC) $(CFLAGS) -o $(root)/sender $(SEND_OBJ)
+	$(CC) $(CFLAGS) -o $(BUILD_DIR)/$@ $^
 
-.o: %.c $(HDRS)
+$(BUILD_DIR)/%.o: %.c $(HDRS)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 clean:
-	-rm $(SRC_DIR)/*.o $(root)/receiver $(root)/sender
+	-rm $(BUILD_DIR)/* $(root)/*.o
 
-.PHONY: clean
+.PHONY: clean all
