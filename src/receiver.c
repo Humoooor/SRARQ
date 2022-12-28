@@ -5,7 +5,7 @@
 #        Email: humoooor@qq.com
 #     HomePage: https://humoooor.cn
 #      Version: 0.0.1
-#   LastChange: 2022-11-26 10:18:40
+#   LastChange: 2022-12-28 15:10:29
 #      History:
 =============================================================================*/
 
@@ -22,7 +22,6 @@
 #include "recvwindow.h"
 
 #define PORT 7777
-#define RSIZE 8
 
 void DeliverData(uint8_t seqNo, char *data);
 
@@ -70,11 +69,18 @@ int main(int argc, char *argv[]) {
 		myLog("Receive frame %u", frame->seqNo);
 
         // check if frame is corrupted
-		if(!CheckFrame(frame)) {
+		if(!CheckFrame(frame) && !NAKSent) {
 			myErrLog("Frame %u corrupted", frame->seqNo);
-            SendNAK(frame->seqNo, client_socket);
+            if(!NAKSent) {
+                SendNAK(Rn, client_socket);
+                myLog("NAK %u sent", Rn);
+                NAKSent = true;
+            }
 			continue;
 		}
+
+        // for debug
+        // myLog("Content len = %d, CRC = 0x%x", strlen(frame->data), frame->CRC);
 
         // check if frame is sent repeatedly
 		if(isFrameExist(frame->seqNo)) {
@@ -100,15 +106,20 @@ int main(int argc, char *argv[]) {
 			DeliverData(Rn, data);
 
 			PurgeFrame(Rn);
-			myLog("Purge frame %u", Rn);
 
 			Rn++;
 			Rn %= RSIZE;
-            ACKNeeded = false;
+            ACKNeeded = true;
 		}
 
         if(ACKNeeded) {
-            SendACK(Rn - 1, client_socket);
+            if(Rn > 0) {
+                SendACK(Rn-1, client_socket);
+                myLog("ACK %u sent", Rn-1);
+            } else {
+                SendACK(RSIZE-1, client_socket);
+                myLog("ACK %u sent", RSIZE-1);
+            }
             ACKNeeded = false;
             NAKSent = false;
         }

@@ -16,15 +16,23 @@ Simulate the process of SRARQ
         - [x] StoreFrame
         - [x] PurgeFrame
         - [x] ExtractData
-    - [ ] Debug
-        - [x] First
-        - [ ] ...
-- [ ] Sender
-    - [ ] Frame
+- [x] Sender
+    - [x] Frame
         - [x] MakeFrame
         - [x] SendFrame
-        - [ ] ReceiveACK/NAK
-        - [ ] ...
-    - [ ] SenderWindow
-        - [ ] ...
-- [ ] Makefile
+        - [x] ReceiveACK
+    - [x] SenderWindow
+        - [x] InitWindow
+        - [x] isBetween
+        - [x] isInWindow
+        - [x] StoreFrame
+        - [x] PurgeFrame
+        - [x] GetFrame
+    - [x] Timer
+        - [x] StartTimer
+        - [x] StopTimer
+        - [x] TimeOut
+- [x] Makefile
+- [ ] Debug
+    - [x] 1st: Program works correctly
+    - [ ] 2nd: Add packet loss rate

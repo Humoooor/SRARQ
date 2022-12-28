@@ -75,10 +75,9 @@ uint16_t CalcCRC16(char const *data, int len) {
     int i;
 
     while(len--) {
-        i = high ^ *data;
+        i = high ^ *data++;
         high = low ^ table_high_byte[i];
         low = table_low_byte[i];
-        data++;
     }
 
     return low << 8 | high;
@@ -86,15 +85,18 @@ uint16_t CalcCRC16(char const *data, int len) {
 
 int CheckCRC16(char const *data, int len, uint16_t CRC) {
     uint16_t res;
-    char *new_data = (char*)malloc(len + 2);
+    // [#] something wrong
+    //
+    // char *new_data = (char*)malloc(len + 2);
 
-    for(int i = 0; i < len; ++i) {
-        new_data[i] = data[i];
-    }
-    *(uint16_t*)(new_data+len) = CRC;
-    res = CalcCRC16(new_data, len + 2);
-    free(new_data);
+    // for(int i = 0; i < len; ++i) {
+    //     new_data[i] = data[i];
+    // }
+    // *(uint16_t*)(new_data+len) = CRC;
+    // res = CalcCRC16(new_data, len + 2);
+    // free(new_data);
     
+    res = !(CalcCRC16(data, len) == CRC);
     if(res == 0) {
         return 1;
     } else {
