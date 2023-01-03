@@ -82,6 +82,7 @@ int main(int argc, char *argv[]) {
         if(frame->seqNo != Rn && !NAKSent) {
             SendNAK(Rn, client_socket);
             NAKSent = true;
+            myLog("NAK %u sent", Rn);
         }
 
         // check if in receiver window
