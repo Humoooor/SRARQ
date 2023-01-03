@@ -33,6 +33,6 @@ Simulate the process of SRARQ
         - [x] StopTimer
         - [x] TimeOut
 - [x] Makefile
-- [ ] Debug
+- [x] Debug
     - [x] 1st: Program works correctly
-    - [ ] 2nd: Add packet loss rate
+    - [x] 2nd: Add packet loss rate
