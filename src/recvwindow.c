@@ -1,17 +1,14 @@
-/*=============================================================================
-#     FileName: recvwindow.c
-#         Desc: Operations on receiver window
-#       Author: Humoooor
-#        Email: humoooor@qq.com
-#     HomePage: https://humoooor.cn
-#      Version: 0.0.1
-#   LastChange: 2022-11-27 16:55:30
-=============================================================================*/
-
+#include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include "types.h"
+
+#define UP "┌─┐"
+#define DOWN "└─┘"
+#define GREEN "\033[32m"
+#define LIGHTGREEN "\033[92m"
+#define END "\033[0m"
 
 static char **datas;
 static uint8_t seq_max;
@@ -53,4 +50,32 @@ void PurgeFrame(uint8_t seqNo) {
 
 char *ExtractData(uint8_t seqNo) {
     return datas[seqNo];
+}
+
+void PrintFrame(uint8_t Rn) {
+
+    for(int i = 0; i <= seq_max; i++) {
+        // add color
+        if(i == Rn) {
+            printf(LIGHTGREEN);
+        } else if(datas[i]) {
+            printf(GREEN);
+        }
+
+        printf(UP);
+        printf(END);
+    }
+    printf("\n");
+
+    for(int i = 0; i <= seq_max; i++) {
+        // add color
+        if(i == Rn) {
+            printf(LIGHTGREEN);
+        } else if(datas[i]) {
+            printf(GREEN);
+        }
+        printf(DOWN);
+        printf(END);
+    }
+    printf("\n");
 }

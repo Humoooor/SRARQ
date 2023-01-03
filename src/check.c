@@ -1,13 +1,3 @@
-/*=============================================================================
-#     FileName: check.c
-#         Desc: Calculate the CRC16 code
-#       Author: Humoooor
-#        Email: humoooor@qq.com
-#     HomePage: https://humoooor.cn
-#      Version: 0.0.1
-#   LastChange: 2022-11-26 15:53:20
-=============================================================================*/
-
 #include <stdlib.h>
 #include <stdint.h>
 
@@ -85,16 +75,6 @@ uint16_t CalcCRC16(char const *data, int len) {
 
 int CheckCRC16(char const *data, int len, uint16_t CRC) {
     uint16_t res;
-    // [#] something wrong
-    //
-    // char *new_data = (char*)malloc(len + 2);
-
-    // for(int i = 0; i < len; ++i) {
-    //     new_data[i] = data[i];
-    // }
-    // *(uint16_t*)(new_data+len) = CRC;
-    // res = CalcCRC16(new_data, len + 2);
-    // free(new_data);
     
     res = !(CalcCRC16(data, len) == CRC);
     if(res == 0) {

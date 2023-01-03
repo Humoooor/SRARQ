@@ -54,7 +54,7 @@ int main(int argc, char *argv[]) {
     InitTimer(RSIZE, client_socket);
 
     pthread_t ACKhandle;
-    pthread_create(&ACKhandle, NULL, ACKHandle, (void*)&client_socket);
+    pthread_create(&ACKhandle, NULL, (void*)ACKHandle, (void*)&client_socket);
 
     myLog("Sender start");
     while(true) {
@@ -63,7 +63,7 @@ int main(int argc, char *argv[]) {
         data = GetRandData();
         frame = MakeFrame(Sn, data);
 
-        // sleep
+        // window full & sleep
         while(!isInWindow(Sf, Sn)) {
             if(window_full == 0) {
                 myLog("Sender window full");
@@ -79,6 +79,7 @@ int main(int argc, char *argv[]) {
         myLog("Frame %u timer start", Sn);
         Sn++;
         Sn %= RSIZE;
+        PrintFrame(Sf, Sn);
     }
 
 	return 0;
@@ -110,6 +111,7 @@ void ACKHandle(void *socket) {
     while(true) {
         int ret = ReceiveACK(client_socket, ack);
 
+        usleep(UNIT_TIME(2));
         if(ret == -1) {
             myWarnLog("ACK/NAK corrupted");
             // sleep
@@ -123,24 +125,24 @@ void ACKHandle(void *socket) {
 
         if(ack->type == TYP_ACK) {
             myLog("ACK %u received", ack->seqNo);
-            while(isBetween(Sf, Sn, ack->seqNo)) {
+            do {
+                // usleep(UNIT_TIME(1));
                 StopTimer(Sf);
                 PurgeFrame(Sf);
                 Sf++;
                 Sf %= RSIZE;
-                usleep(UNIT_TIME(2));
-            }
-            myLog("Sf move to %u", Sf);
+            } while(isBetween(Sf, Sn, ack->seqNo));
+            PrintFrame(Sf, Sn);
+            // myLog("Sf move to %u", Sf);
         }
 
         if(ack->type == TYP_NAK) {
-            usleep(UNIT_TIME(2));
             myLog("NAK %u received", ack->seqNo);
             // resend frame
             frame = GetFrame(ack->seqNo);
             SendFrame(client_socket, frame);
-            frame = NULL;
             myLog("Frame %u resent", ack->seqNo);
+            frame = NULL;
             StartTimer(ack->seqNo);
         }
     }

@@ -6,7 +6,6 @@
 #     HomePage: https://humoooor.cn
 #      Version: 0.0.1
 #   LastChange: 2022-12-28 15:10:29
-#      History:
 =============================================================================*/
 
 #include <stdio.h>
@@ -45,14 +44,14 @@ int main(int argc, char *argv[]) {
 		}
 	}
 
-    frame = (struct Frame*)malloc(sizeof(struct Frame));
-    initWindow(RSIZE);
-
 	int listen_socket = CreateServerSocket(port);
 	myLog("Listening to port %d...", port);
 	
 	int client_socket = WaitClient(listen_socket);
 	myLog("Connecting with a client");
+
+    frame = (struct Frame*)malloc(sizeof(struct Frame));
+    initWindow(RSIZE);
 
 	while(true) {
 		int ret = ReceiveFrame(client_socket, frame);
@@ -79,15 +78,6 @@ int main(int argc, char *argv[]) {
 			continue;
 		}
 
-        // for debug
-        // myLog("Content len = %d, CRC = 0x%x", strlen(frame->data), frame->CRC);
-
-        // check if frame is sent repeatedly
-		if(isFrameExist(frame->seqNo)) {
-			myWarnLog("Frame %u already exists", frame->seqNo);
-			continue;
-		}
-
         // if frame->seqNo is no equal to Rn, send Rn's NAK(if not sent yet)
         if(frame->seqNo != Rn && !NAKSent) {
             SendNAK(Rn, client_socket);
@@ -95,7 +85,7 @@ int main(int argc, char *argv[]) {
         }
 
         // check if in receiver window
-		if(isInWindow(frame->seqNo, Rn)) {
+		if(isInWindow(frame->seqNo, Rn) && !isFrameExist(frame->seqNo)) {
 			StoreFrame(frame);
 		}
 
@@ -124,6 +114,7 @@ int main(int argc, char *argv[]) {
             NAKSent = false;
         }
 
+        PrintFrame(Rn);
 		//sleep(0.5);
 	}
 

@@ -8,6 +8,12 @@
 #include "frame.h"
 #include "sendwindow.h"
 
+#define UP "┌─┐"
+#define DOWN "└─┘"
+#define GREEN "\033[92m"
+#define BLUE "\033[34m"
+#define END "\033[0m"
+
 static struct Frame **frames;
 static uint8_t seq_max;
 static uint8_t window_size;
@@ -42,7 +48,6 @@ void StoreFrame(struct Frame *frame) {
 }
 
 void PurgeFrame(uint8_t seqNo) {
-    printf("PurgeFrame %u\n", seqNo);
     free(frames[seqNo]->data);
     frames[seqNo]->data = NULL;
     free(frames[seqNo]);
@@ -51,4 +56,32 @@ void PurgeFrame(uint8_t seqNo) {
 
 struct Frame* GetFrame(uint8_t seqNo) {
     return frames[seqNo];
+}
+
+void PrintFrame(uint8_t Sf, uint8_t Sn) {
+    for(int i = 0; i <= seq_max; i++) {
+        // add color
+        if(i == Sn) {
+            printf(BLUE);
+        } else if(isBetween(Sf, Sn, i)) {
+            printf(GREEN);
+        }
+
+        printf(UP);
+        printf(END);
+    }
+    printf("\n");
+
+    for(int i = 0; i <= seq_max; i++) {
+        // add color
+        if(i == Sn) {
+            printf(BLUE);
+        } else if(isBetween(Sf, Sn, i)) {
+            printf(GREEN);
+        }
+
+        printf(DOWN);
+        printf(END);
+    }
+    printf("\n");
 }

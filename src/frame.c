@@ -1,13 +1,3 @@
-/*=============================================================================
-#     FileName: frame.c
-#         Desc: Operations on a frame
-#       Author: Humoooor
-#        Email: humoooor@qq.com
-#     HomePage: https://humoooor.cn
-#      Version: 0.0.1
-#   LastChange: 2022-11-26 20:37:07
-=============================================================================*/
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -17,8 +7,17 @@
 #include "mylog.h"
 #include "check.h"
 
+#define LOSSRATE 20
 #define ESC 0x1b
 #define SendField(socket, x) write(socket, &(x), sizeof(x))
+
+int LossFrame() {
+    if(rand()%100 < 20) {
+        return 1;
+    } else {
+        return 0;
+    }
+}
 
 // server
 
@@ -96,6 +95,9 @@ int CheckFrame(struct Frame *frame) {
 }
 
 void SendACK(uint8_t seqNo, int client_socket) {
+    if(LossFrame()) {
+        return;
+    }
     struct ACK ack;
     ack.flag1 = FLAG;
     ack.type = TYP_ACK;
@@ -106,6 +108,9 @@ void SendACK(uint8_t seqNo, int client_socket) {
 }
 
 void SendNAK(uint8_t seqNo, int client_socket) {
+    if(LossFrame()) {
+        return;
+    }
     struct ACK frame;
     frame.flag1 = FLAG;
     frame.type = TYP_NAK;
@@ -148,6 +153,9 @@ struct Frame *MakeFrame(int seqNo, char *data) {
 }
 
 void SendFrame(int client_socket, struct Frame *frame) {
+    if(LossFrame()) {
+        return;
+    }
     SendField(client_socket, frame->flag1);
     SendField(client_socket, frame->seqNo);
     write(client_socket, frame->data, strlen(frame->data));

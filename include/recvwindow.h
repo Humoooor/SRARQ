@@ -7,5 +7,6 @@ int isFrameExist(uint8_t seqNo);
 void StoreFrame(struct Frame *frame);
 void PurgeFrame(uint8_t seqNo);
 char *ExtractData(uint8_t seqNo);
+void PrintFrame(uint8_t Rn);
 
 #endif
