@@ -24,7 +24,7 @@ void StartTimer(uint8_t seqNo) {
     timers[seqNo].status = TIMER_START;
 
     // timeout
-    pthread_create(&timers[seqNo].thread, NULL, TimeOut, (void*)&seqNo);
+    pthread_create(&timers[seqNo].thread, NULL, (void*)TimeOut, (void*)&seqNo);
     // wait for pass params to TimeOut
     usleep(UNIT_TIME(1));
 }
