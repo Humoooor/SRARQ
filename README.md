@@ -1,7 +1,7 @@
 # SRARQ
 Simulate the process of SRARQ
 
-西安电子科技大学网信院 计算机网络原理大作业 ARQ 算法模拟
+SRARQ 算法模拟
 
 - [x] Receiver
     - [x] Frame
@@ -36,3 +36,5 @@ Simulate the process of SRARQ
 - [x] Debug
     - [x] 1st: Program works correctly
     - [x] 2nd: Add packet loss rate
+
+![](pic/example.png)
